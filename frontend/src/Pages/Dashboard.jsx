@@ -22,6 +22,8 @@ import axios from "axios";
 import LogoutDialog from "../Components/logoutDialog/LogoutDialog";
 import TweetReplyTable from "../Components/tweet-reply-table/TweetReplyTable";
 import { sampleTweets } from "../constants";
+import Sidebar from "../Components/sideBar/sideBar";
+import Appbar from "../Components/appBar/appBar";
 
 const drawerWidth = 200;
 
@@ -40,6 +42,7 @@ const Dashboard = () => {
     localStorage.removeItem("token");
     setLogoutOpen(false);
     navigate("/login");
+    navigate("/login");
   };
 
   const searchTweets = async () => {
@@ -49,6 +52,7 @@ const Dashboard = () => {
       );
       setTweets(res.data.data || []);
     } catch (err) {
+      console.log("still there")
       console.error("Search failed", err);
     }
   };
@@ -61,38 +65,7 @@ const Dashboard = () => {
         onConfirm={handleLogout}
       />
 
-      <Drawer
-        variant="permanent"
-        sx={{
-          width: drawerWidth,
-          flexShrink: 0,
-          [`& .MuiDrawer-paper`]: {
-            width: drawerWidth,
-            boxSizing: "border-box",
-          },
-        }}
-      >
-        <Toolbar />
-        <Box sx={{ overflow: "auto" }}>
-          <List>
-            <ListItem button>
-              <ListItemText primary="Dashboard" />
-            </ListItem>
-            <ListItem button>
-              <ListItemText primary="History" />
-            </ListItem>
-            <ListItem button>
-              <ListItemText primary="Export Tools" />
-            </ListItem>
-            <ListItem button>
-              <ListItemText
-                primary="Post Manager"
-                onClick={() => setActive("post-manager")}
-              />
-            </ListItem>
-          </List>
-        </Box>
-      </Drawer>
+    
 
       <Box
         component="main"
