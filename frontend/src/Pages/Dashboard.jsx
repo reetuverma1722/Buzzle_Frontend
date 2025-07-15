@@ -20,24 +20,26 @@ import { Logout, Search } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import LogoutDialog from "../Components/logoutDialog/LogoutDialog";
+import TweetReplyTable from "../Components/tweet-reply-table/TweetReplyTable";
+import { sampleTweets } from "../constants";
 
 const drawerWidth = 200;
 
 const Dashboard = () => {
   const [keyword, setKeyword] = useState("");
   const [tweets, setTweets] = useState([]);
-   const [logoutOpen, setLogoutOpen] = useState(false); 
+  const [logoutOpen, setLogoutOpen] = useState(false);
   const navigate = useNavigate();
-
+  const [active, setActive] = useState(false);
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) navigate("/login");
   }, [navigate]);
 
-   const handleLogout = () => {
-    localStorage.removeItem('token');
+  const handleLogout = () => {
+    localStorage.removeItem("token");
     setLogoutOpen(false);
-    navigate('/login');
+    navigate("/login");
   };
 
   const searchTweets = async () => {
@@ -76,6 +78,18 @@ const Dashboard = () => {
             <ListItem button>
               <ListItemText primary="Dashboard" />
             </ListItem>
+            <ListItem button>
+              <ListItemText primary="History" />
+            </ListItem>
+            <ListItem button>
+              <ListItemText primary="Export Tools" />
+            </ListItem>
+            <ListItem button>
+              <ListItemText
+                primary="Post Manager"
+                onClick={() => setActive("post-manager")}
+              />
+            </ListItem>
           </List>
         </Box>
       </Drawer>
@@ -93,7 +107,7 @@ const Dashboard = () => {
         >
           <Toolbar sx={{ justifyContent: "space-between" }}>
             <Typography variant="h6" noWrap>
-              Buzzle
+              Buzzly
             </Typography>
             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
               <Avatar alt="User" src="/profile.jpg" />
@@ -106,34 +120,40 @@ const Dashboard = () => {
 
         <Toolbar />
         <Box sx={{ p: 3 }}>
-          <Grid container spacing={2} alignItems="center" sx={{ mb: 3 }}>
-            <Grid item xs={12} sm={8}>
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  background: "#fff",
-                  borderRadius: 1,
-                  border: "1px solid #ccc",
-                  px: 2,
-                }}
-              >
-                <Search color="action" />
-                <InputBase
-                  placeholder="Enter keyword"
-                  fullWidth
-                  value={keyword}
-                  onChange={(e) => setKeyword(e.target.value)}
-                  sx={{ ml: 1 }}
-                />
-              </Box>
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <Button variant="contained" fullWidth onClick={searchTweets}>
-                Search
-              </Button>
-            </Grid>
-          </Grid>
+          <div style={{ flex: 1, padding: "2rem" }}>
+            {active === "post-manager" ? (
+              <TweetReplyTable tweets={sampleTweets} />
+            ) : (
+              <Grid container spacing={2} alignItems="center" sx={{ mb: 3 }}>
+                <Grid item xs={12} sm={8}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      background: "#fff",
+                      borderRadius: 1,
+                      border: "1px solid #ccc",
+                      px: 2,
+                    }}
+                  >
+                    <Search color="action" />
+                    <InputBase
+                      placeholder="Enter keyword"
+                      fullWidth
+                      value={keyword}
+                      onChange={(e) => setKeyword(e.target.value)}
+                      sx={{ ml: 1 }}
+                    />
+                  </Box>
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <Button variant="contained" fullWidth onClick={searchTweets}>
+                    Search
+                  </Button>
+                </Grid>
+              </Grid>
+            )}
+          </div>
 
           <Grid container spacing={2}>
             {tweets.map((tweet, i) => (
