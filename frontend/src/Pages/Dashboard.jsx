@@ -42,7 +42,6 @@ const Dashboard = () => {
     localStorage.removeItem("token");
     setLogoutOpen(false);
     navigate("/login");
-    navigate("/login");
   };
 
   const searchTweets = async () => {
@@ -65,8 +64,7 @@ const Dashboard = () => {
         onConfirm={handleLogout}
       />
 
-    
-
+     <Sidebar/>
       <Box
         component="main"
         sx={{ flexGrow: 1, bgcolor: "#f9f9f9", minHeight: "100vh" }}
