@@ -1,3 +1,6 @@
+// 
+
+
 import React, { useState, useEffect } from "react";
 import {
   AppBar,
@@ -21,7 +24,6 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import LogoutDialog from "../Components/logoutDialog/LogoutDialog";
 import TweetReplyTable from "../Components/tweet-reply-table/TweetReplyTable";
-import { sampleTweets } from "../constants";
 
 const drawerWidth = 200;
 
@@ -29,8 +31,9 @@ const Dashboard = () => {
   const [keyword, setKeyword] = useState("");
   const [tweets, setTweets] = useState([]);
   const [logoutOpen, setLogoutOpen] = useState(false);
+  const [active, setActive] = useState("");
   const navigate = useNavigate();
-  const [active, setActive] = useState(false);
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) navigate("/login");
@@ -47,7 +50,7 @@ const Dashboard = () => {
       const res = await axios.get(
         `http://localhost:5000/api/search?keyword=${keyword}`
       );
-      setTweets(res.data.data || []);
+      setTweets(res.data.tweets || []);
     } catch (err) {
       console.error("Search failed", err);
     }
@@ -75,7 +78,7 @@ const Dashboard = () => {
         <Toolbar />
         <Box sx={{ overflow: "auto" }}>
           <List>
-            <ListItem button>
+            <ListItem button onClick={() => setActive("")}>
               <ListItemText primary="Dashboard" />
             </ListItem>
             <ListItem button>
@@ -84,11 +87,8 @@ const Dashboard = () => {
             <ListItem button>
               <ListItemText primary="Export Tools" />
             </ListItem>
-            <ListItem button>
-              <ListItemText
-                primary="Post Manager"
-                onClick={() => setActive("post-manager")}
-              />
+            <ListItem button onClick={() => setActive("post-manager")}>
+              <ListItemText primary="Post Manager" />
             </ListItem>
           </List>
         </Box>
@@ -122,7 +122,7 @@ const Dashboard = () => {
         <Box sx={{ p: 3 }}>
           <div style={{ flex: 1, padding: "2rem" }}>
             {active === "post-manager" ? (
-              <TweetReplyTable tweets={sampleTweets} />
+              <TweetReplyTable tweets={tweets} />
             ) : (
               <Grid container spacing={2} alignItems="center" sx={{ mb: 3 }}>
                 <Grid item xs={12} sm={8}>
