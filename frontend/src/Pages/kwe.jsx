@@ -1,3 +1,5 @@
+//
+
 import React, { useState, useEffect } from "react";
 import {
   AppBar,
@@ -7,21 +9,21 @@ import {
   InputBase,
   Button,
   Grid,
+  Drawer,
   Box,
+  List,
+  ListItem,
+  ListItemText,
   Card,
   CardContent,
   Avatar,
   CircularProgress,
 } from "@mui/material";
-import { Logout, Search } from "@mui/icons-material";
+import { CloseOutlined, Logout, Search } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import LogoutDialog from "../Components/logoutDialog/LogoutDialog";
 import TweetReplyTable from "../Components/tweet-reply-table/TweetReplyTable";
-import { sampleTweets } from "../constants";
-import Sidebar from "../Components/sideBar/sideBar";
-import Appbar from "../Components/appBar/appBar";
-import { CloseOutlined} from "@mui/icons-material";
 
 const drawerWidth = 200;
 
@@ -29,9 +31,11 @@ const Dashboard = () => {
   const [keyword, setKeyword] = useState("");
   const [tweets, setTweets] = useState([]);
   const [logoutOpen, setLogoutOpen] = useState(false);
+  const [active, setActive] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
-  const [active, setActive] = useState(false);
-   const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) navigate("/login");
@@ -44,7 +48,7 @@ const Dashboard = () => {
   };
 
   const searchTweets = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
       const res = await axios.get(
         `http://localhost:4000/api/search?keyword=${keyword}`
@@ -53,11 +57,11 @@ const Dashboard = () => {
     } catch (err) {
       console.log("still there")
       console.error("Search failed", err);
-    }finally {
+    } finally {
       setLoading(false);
     }
   };
- const clearKeyword = () => {
+  const clearKeyword = () => {
     setKeyword("");
     setTweets([]);
   };
@@ -70,8 +74,37 @@ const Dashboard = () => {
         onConfirm={handleLogout}
       />
 
-     <Sidebar/>
-       <Box
+      <Drawer
+        variant="permanent"
+        sx={{
+          width: drawerWidth,
+          flexShrink: 0,
+          [`& .MuiDrawer-paper`]: {
+            width: drawerWidth,
+            boxSizing: "border-box",
+          },
+        }}
+      >
+        <Toolbar />
+        <Box sx={{ overflow: "auto" }}>
+          <List>
+            <ListItem button onClick={() => setActive("")}>
+              <ListItemText primary="Dashboard" />
+            </ListItem>
+            <ListItem button>
+              <ListItemText primary="History" />
+            </ListItem>
+            <ListItem button>
+              <ListItemText primary="Export Tools" />
+            </ListItem>
+            <ListItem button onClick={() => setActive("post-manager")}>
+              <ListItemText primary="Post Manager" />
+            </ListItem>
+          </List>
+        </Box>
+      </Drawer>
+
+      <Box
         component="main"
         sx={{ flexGrow: 1, bgcolor: "#f9f9f9", minHeight: "100vh" }}
       >
