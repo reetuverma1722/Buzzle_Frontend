@@ -1,5 +1,3 @@
-//
-
 import React, { useState, useEffect } from "react";
 import {
   AppBar,
@@ -23,7 +21,7 @@ import { CloseOutlined, Logout, Search } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import LogoutDialog from "../Components/logoutDialog/LogoutDialog";
-import TweetReplyTable from "../Components/tweet-reply-table/TweetReplyTable";
+import TweetReplyTable from "../Components/tweet-reply-table/SearchHistory";
 
 const drawerWidth = 200;
 
@@ -55,12 +53,12 @@ const Dashboard = () => {
       );
       setTweets(res.data.tweets || []);
     } catch (err) {
-      console.log("still there")
       console.error("Search failed", err);
     } finally {
       setLoading(false);
     }
   };
+
   const clearKeyword = () => {
     setKeyword("");
     setTweets([]);
@@ -74,6 +72,7 @@ const Dashboard = () => {
         onConfirm={handleLogout}
       />
 
+      {/* Sidebar */}
       <Drawer
         variant="permanent"
         sx={{
@@ -91,7 +90,7 @@ const Dashboard = () => {
             <ListItem button onClick={() => setActive("")}>
               <ListItemText primary="Dashboard" />
             </ListItem>
-            <ListItem button>
+            <ListItem button onClick={() => setActive("history")}>
               <ListItemText primary="History" />
             </ListItem>
             <ListItem button>
@@ -104,10 +103,12 @@ const Dashboard = () => {
         </Box>
       </Drawer>
 
+      {/* Main content */}
       <Box
         component="main"
         sx={{ flexGrow: 1, bgcolor: "#f9f9f9", minHeight: "100vh" }}
       >
+        {/* Top App Bar */}
         <AppBar
           position="fixed"
           sx={{
@@ -130,10 +131,11 @@ const Dashboard = () => {
 
         <Toolbar />
         <Box sx={{ p: 3 }}>
-          <div style={{ flex: 1, padding: "2rem" }}>
-            {active === "post-manager" ? (
-              <TweetReplyTable tweets={tweets} />
-            ) : (
+          {active === "post-manager" || active === "history" ? (
+            <TweetReplyTable />
+          ) : (
+            <>
+              {/* Search Box */}
               <Grid container spacing={2} alignItems="center" sx={{ mb: 3 }}>
                 <Grid item xs={12} sm={8}>
                   <Box
@@ -167,28 +169,30 @@ const Dashboard = () => {
                   </Button>
                 </Grid>
               </Grid>
-            )}
-          </div>
-          {loading ? (
-            <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
-              <CircularProgress />
-            </Box>
-          ) : (
-            <Grid container spacing={2}>
-              {tweets.map((tweet, i) => (
-                <Grid item xs={12} key={i}>
-                  <Card>
-                    <CardContent>
-                      <Typography variant="body1">{tweet.text}</Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        Likes: {tweet.public_metrics?.like_count} | Retweets:{" "}
-                        {tweet.public_metrics?.retweet_count}
-                      </Typography>
-                    </CardContent>
-                  </Card>
+
+              {/* Tweets List */}
+              {loading ? (
+                <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+                  <CircularProgress />
+                </Box>
+              ) : (
+                <Grid container spacing={2}>
+                  {tweets.map((tweet, i) => (
+                    <Grid item xs={12} key={i}>
+                      <Card>
+                        <CardContent>
+                          <Typography variant="body1">{tweet.text}</Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            Likes: {tweet.public_metrics?.like_count} | Retweets:{" "}
+                            {tweet.public_metrics?.retweet_count}
+                          </Typography>
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                  ))}
                 </Grid>
-              ))}
-            </Grid>
+              )}
+            </>
           )}
         </Box>
       </Box>
