@@ -1,3 +1,5 @@
+//
+
 import React, { useState, useEffect } from "react";
 import {
   AppBar,
@@ -15,15 +17,13 @@ import {
   Card,
   CardContent,
   Avatar,
+  CircularProgress,
 } from "@mui/material";
-import { Logout, Search } from "@mui/icons-material";
+import { CloseOutlined, Logout, Search } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import LogoutDialog from "../Components/logoutDialog/LogoutDialog";
 import TweetReplyTable from "../Components/tweet-reply-table/TweetReplyTable";
-import { sampleTweets } from "../constants";
-import Sidebar from "../Components/sideBar/sideBar";
-import Appbar from "../Components/appBar/appBar";
 
 const drawerWidth = 200;
 
@@ -31,8 +31,11 @@ const Dashboard = () => {
   const [keyword, setKeyword] = useState("");
   const [tweets, setTweets] = useState([]);
   const [logoutOpen, setLogoutOpen] = useState(false);
+  const [active, setActive] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
-  const [active, setActive] = useState(false);
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) navigate("/login");
@@ -45,15 +48,22 @@ const Dashboard = () => {
   };
 
   const searchTweets = async () => {
+    setLoading(true);
     try {
       const res = await axios.get(
         `http://localhost:5000/api/search?keyword=${keyword}`
       );
-      setTweets(res.data.data || []);
+      setTweets(res.data.tweets || []);
     } catch (err) {
       console.log("still there")
       console.error("Search failed", err);
+    } finally {
+      setLoading(false);
     }
+  };
+  const clearKeyword = () => {
+    setKeyword("");
+    setTweets([]);
   };
 
   return (
@@ -64,7 +74,36 @@ const Dashboard = () => {
         onConfirm={handleLogout}
       />
 
-     <Sidebar/>
+      <Drawer
+        variant="permanent"
+        sx={{
+          width: drawerWidth,
+          flexShrink: 0,
+          [`& .MuiDrawer-paper`]: {
+            width: drawerWidth,
+            boxSizing: "border-box",
+          },
+        }}
+      >
+        <Toolbar />
+        <Box sx={{ overflow: "auto" }}>
+          <List>
+            <ListItem button onClick={() => setActive("")}>
+              <ListItemText primary="Dashboard" />
+            </ListItem>
+            <ListItem button>
+              <ListItemText primary="History" />
+            </ListItem>
+            <ListItem button>
+              <ListItemText primary="Export Tools" />
+            </ListItem>
+            <ListItem button onClick={() => setActive("post-manager")}>
+              <ListItemText primary="Post Manager" />
+            </ListItem>
+          </List>
+        </Box>
+      </Drawer>
+
       <Box
         component="main"
         sx={{ flexGrow: 1, bgcolor: "#f9f9f9", minHeight: "100vh" }}
@@ -93,7 +132,7 @@ const Dashboard = () => {
         <Box sx={{ p: 3 }}>
           <div style={{ flex: 1, padding: "2rem" }}>
             {active === "post-manager" ? (
-              <TweetReplyTable tweets={sampleTweets} />
+              <TweetReplyTable tweets={tweets} />
             ) : (
               <Grid container spacing={2} alignItems="center" sx={{ mb: 3 }}>
                 <Grid item xs={12} sm={8}>
@@ -115,6 +154,11 @@ const Dashboard = () => {
                       onChange={(e) => setKeyword(e.target.value)}
                       sx={{ ml: 1 }}
                     />
+                    {keyword && (
+                      <IconButton onClick={clearKeyword}>
+                        <CloseOutlined fontSize="small" />
+                      </IconButton>
+                    )}
                   </Box>
                 </Grid>
                 <Grid item xs={12} sm={4}>
@@ -125,22 +169,27 @@ const Dashboard = () => {
               </Grid>
             )}
           </div>
-
-          <Grid container spacing={2}>
-            {tweets.map((tweet, i) => (
-              <Grid item xs={12} key={i}>
-                <Card>
-                  <CardContent>
-                    <Typography variant="body1">{tweet.text}</Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      Likes: {tweet.public_metrics?.like_count} | Retweets:{" "}
-                      {tweet.public_metrics?.retweet_count}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
+          {loading ? (
+            <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <Grid container spacing={2}>
+              {tweets.map((tweet, i) => (
+                <Grid item xs={12} key={i}>
+                  <Card>
+                    <CardContent>
+                      <Typography variant="body1">{tweet.text}</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Likes: {tweet.public_metrics?.like_count} | Retweets:{" "}
+                        {tweet.public_metrics?.retweet_count}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          )}
         </Box>
       </Box>
     </Box>
