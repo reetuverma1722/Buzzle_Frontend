@@ -55,6 +55,7 @@ const Dashboard = () => {
       );
       setTweets(res.data.tweets || []);
     } catch (err) {
+      console.log("still there")
       console.error("Search failed", err);
     } finally {
       setLoading(false);
