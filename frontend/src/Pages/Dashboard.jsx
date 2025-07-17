@@ -1,5 +1,4 @@
-// 
-
+//
 
 import React, { useState, useEffect } from "react";
 import {
@@ -18,8 +17,9 @@ import {
   Card,
   CardContent,
   Avatar,
+  CircularProgress,
 } from "@mui/material";
-import { Logout, Search } from "@mui/icons-material";
+import { CloseOutlined, Logout, Search } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import LogoutDialog from "../Components/logoutDialog/LogoutDialog";
@@ -32,6 +32,8 @@ const Dashboard = () => {
   const [tweets, setTweets] = useState([]);
   const [logoutOpen, setLogoutOpen] = useState(false);
   const [active, setActive] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -46,6 +48,7 @@ const Dashboard = () => {
   };
 
   const searchTweets = async () => {
+    setLoading(true);
     try {
       const res = await axios.get(
         `http://localhost:5000/api/search?keyword=${keyword}`
@@ -53,7 +56,13 @@ const Dashboard = () => {
       setTweets(res.data.tweets || []);
     } catch (err) {
       console.error("Search failed", err);
+    } finally {
+      setLoading(false);
     }
+  };
+  const clearKeyword = () => {
+    setKeyword("");
+    setTweets([]);
   };
 
   return (
@@ -144,6 +153,11 @@ const Dashboard = () => {
                       onChange={(e) => setKeyword(e.target.value)}
                       sx={{ ml: 1 }}
                     />
+                    {keyword && (
+                      <IconButton onClick={clearKeyword}>
+                        <CloseOutlined fontSize="small" />
+                      </IconButton>
+                    )}
                   </Box>
                 </Grid>
                 <Grid item xs={12} sm={4}>
@@ -154,22 +168,27 @@ const Dashboard = () => {
               </Grid>
             )}
           </div>
-
-          <Grid container spacing={2}>
-            {tweets.map((tweet, i) => (
-              <Grid item xs={12} key={i}>
-                <Card>
-                  <CardContent>
-                    <Typography variant="body1">{tweet.text}</Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      Likes: {tweet.public_metrics?.like_count} | Retweets:{" "}
-                      {tweet.public_metrics?.retweet_count}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
+          {loading ? (
+            <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <Grid container spacing={2}>
+              {tweets.map((tweet, i) => (
+                <Grid item xs={12} key={i}>
+                  <Card>
+                    <CardContent>
+                      <Typography variant="body1">{tweet.text}</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Likes: {tweet.public_metrics?.like_count} | Retweets:{" "}
+                        {tweet.public_metrics?.retweet_count}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          )}
         </Box>
       </Box>
     </Box>
