@@ -183,8 +183,8 @@ const Dashboard = () => {
                         <CardContent>
                           <Typography variant="body1">{tweet.text}</Typography>
                           <Typography variant="caption" color="text.secondary">
-                            Likes: {tweet.public_metrics?.like_count} | Retweets:{" "}
-                            {tweet.public_metrics?.retweet_count}
+                            Likes: {tweet?.like_count} | Retweets:{" "}
+                            {tweet?.retweet_count}
                           </Typography>
                         </CardContent>
                       </Card>
