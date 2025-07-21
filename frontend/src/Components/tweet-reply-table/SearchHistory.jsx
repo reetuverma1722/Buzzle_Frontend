@@ -14,6 +14,10 @@ import {
   Tooltip,
   Checkbox,
   TextField,
+  DialogActions,
+  Dialog,
+  DialogTitle,
+  DialogContent,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -24,7 +28,11 @@ const SearchHistory = () => {
   const [selectedIds, setSelectedIds] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
   const [search, setSearch] = useState("");
-
+const [accessToken, setAccessToken] = useState("");
+  const [tweetText, setTweetText] = useState("");
+    const [open, setOpen] = useState(false);
+  const [selectedTweet, setSelectedTweet] = useState(null);
+  const [editedReply, setEditedReply] = useState("");
   const fetchHistory = async () => {
     try {
       const res = await axios.get("http://localhost:5000/api/search/history");
@@ -79,12 +87,13 @@ const SearchHistory = () => {
   //     console.error("Reply post failed:", err.message);
   //   }
   // };
-const handlePost = async (tweetId, replyText, token) => {
+  const token = localStorage.getItem("twitter_access_token");
+const handlePost11 = async (tweetId, replyText, token) => {
   try {
     const res = await axios.post("http://localhost:5000/api/post-reply", {
       tweetId,
       replyText,
-      token,
+      accessToken:token,
     });
 
     if (res.data.message === "Reply posted!") {
@@ -96,7 +105,27 @@ const handlePost = async (tweetId, replyText, token) => {
     console.error("Reply post failed:", err?.response?.data || err.message);
   }
 };
- const token = localStorage.getItem("token");
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get("accessToken");
+    // console.log("Access Token from URL:", token);
+    if (token) {
+      setAccessToken(token);
+    }
+  }, []);
+
+  // const handlePost = async () => {
+  //   try {
+  //     const response = await axios.post("http://localhost:5000/api/auth/tweet", {
+  //       tweetText:"hello",
+  //       accessToken:token,
+  //     });
+  //     alert("Tweeted: " + response.data.data.text);
+  //   } catch (error) {
+  //     console.error("Tweet Error:", error.response?.data || error.message);
+  //   }
+  // };
   const handleSelectAll = () => {
     if (selectAll) {
       setSelectedIds([]);
@@ -117,7 +146,77 @@ const handlePost = async (tweetId, replyText, token) => {
       item.keyword.toLowerCase().includes(search.toLowerCase()) ||
       item.text.toLowerCase().includes(search.toLowerCase())
   );
+  const handlePost = (tweet) => {
+    setSelectedTweet(tweet);
+    setEditedReply(tweet.reply || "");
+    setOpen(true); 
+  };
 
+  const handleRetweet = async () => {
+  const tweetId = selectedTweet?.id;
+  const tweetReply = editedReply;
+
+  if (!tweetId || !tweetReply) {
+    alert("Tweet or reply is missing");
+    return;
+  }
+
+  const access_token = localStorage.getItem("twitter_access_token");
+
+  if (!access_token) {
+    alert("Access token not found. Please login with Twitter.");
+    return;
+  }
+
+  try {
+    const response = await fetch("http://localhost:5000/api/postReply", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${access_token}`,
+      },
+      body: JSON.stringify({
+        tweetId,
+        reply: tweetReply,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      alert("Reply posted successfully!");
+      setOpen(false); // close modal
+    } else {
+      alert("Error posting reply: " + data.message);
+    }
+  } catch (error) {
+    console.error("Tweet post error:", error);
+    alert("Failed to post reply.");
+  }
+};
+
+//   const handleRetweet = () => {
+//   const tweetId = selectedTweet?.id;
+//   const tweetReply = editedReply;
+
+//   if (!tweetId || !tweetReply) {
+//     alert("Tweet or reply is missing");
+//     return;
+//   }
+
+//   const access_token = localStorage.getItem("twitter_access_token");
+
+//   if (!access_token) {
+//     alert("Access token not found. Please login with Twitter.");
+//     return;
+//   }
+
+//   // Pass data via query parameters to backend
+//   const url = `http://localhost:3000?twitterId=${encodeURIComponent(access_token)}&tweetId=${tweetId}&reply=${encodeURIComponent(tweetReply)}`;
+
+//   console.log("Redirecting to:", url);
+//   window.location.href = url;
+// };
   return (
     <Paper>
       <Grid
@@ -228,7 +327,8 @@ const handlePost = async (tweetId, replyText, token) => {
                     </IconButton>
                     <Button
                       style={{ backgroundColor: "green", color: "white" }}
-                      onClick={() => handlePost(tweet.id, tweet.reply,token)}
+                      // onClick={() => handlePost(tweet.id, tweet.reply,token)}
+                       onClick={() => handlePost(tweet)}
                     >
                       Post
                     </Button>
@@ -239,6 +339,36 @@ const handlePost = async (tweetId, replyText, token) => {
           </TableBody>
         </Table>
       </TableContainer>
+            <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="sm">
+              <DialogTitle>Retweet Confirmation</DialogTitle>
+              <DialogContent dividers>
+                <Typography variant="subtitle1" gutterBottom>
+                  <strong>Tweet:</strong>
+                </Typography>
+                <Typography variant="body1" sx={{ mb: 2 }}>
+                  {selectedTweet?.text}
+                </Typography>
+      
+                <Typography variant="subtitle1" gutterBottom>
+                  <strong>Edit Reply:</strong>
+                </Typography>
+                <TextField
+                  fullWidth
+                  multiline
+                  minRows={3}
+                  value={editedReply}
+                  onChange={(e) => setEditedReply(e.target.value)}
+                />
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={() => setOpen(false)} color="secondary">
+                  Cancel
+                </Button>
+                <Button onClick={handleRetweet} variant="contained" color="primary">
+                  Retweet
+                </Button>
+              </DialogActions>
+            </Dialog>
     </Paper>
   );
 };

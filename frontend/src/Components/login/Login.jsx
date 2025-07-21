@@ -104,7 +104,7 @@ const Login = ({ open, onClose }) => {
       "http://localhost:5000/api/auth/twitter/callback"
     );
     const scope = encodeURIComponent(
-      "tweet.read tweet.write users.read offline.access"
+     'tweet.read tweet.write users.read offline.access'
     );
     const state = "state"; // Random string in production for CSRF protection
     const codeChallenge = "challenge"; // For now, static; later use real PKCE
