@@ -28,9 +28,9 @@ const SearchHistory = () => {
   const [selectedIds, setSelectedIds] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
   const [search, setSearch] = useState("");
-const [accessToken, setAccessToken] = useState("");
+  const [accessToken, setAccessToken] = useState("");
   const [tweetText, setTweetText] = useState("");
-    const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const [selectedTweet, setSelectedTweet] = useState(null);
   const [editedReply, setEditedReply] = useState("");
   const fetchHistory = async () => {
@@ -88,23 +88,23 @@ const [accessToken, setAccessToken] = useState("");
   //   }
   // };
   const token = localStorage.getItem("twitter_access_token");
-const handlePost11 = async (tweetId, replyText, token) => {
-  try {
-    const res = await axios.post("http://localhost:5000/api/post-reply", {
-      tweetId,
-      replyText,
-      accessToken:token,
-    });
+  const handlePost11 = async (tweetId, replyText, token) => {
+    try {
+      const res = await axios.post("http://localhost:5000/api/post-reply", {
+        tweetId,
+        replyText,
+        accessToken: token,
+      });
 
-    if (res.data.message === "Reply posted!") {
-      alert("✅ Reply posted!");
-    } else {
-      alert("❌ Failed to post reply");
+      if (res.data.message === "Reply posted!") {
+        alert("✅ Reply posted!");
+      } else {
+        alert("❌ Failed to post reply");
+      }
+    } catch (err) {
+      console.error("Reply post failed:", err?.response?.data || err.message);
     }
-  } catch (err) {
-    console.error("Reply post failed:", err?.response?.data || err.message);
-  }
-};
+  };
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -149,74 +149,74 @@ const handlePost11 = async (tweetId, replyText, token) => {
   const handlePost = (tweet) => {
     setSelectedTweet(tweet);
     setEditedReply(tweet.reply || "");
-    setOpen(true); 
+    setOpen(true);
   };
 
   const handleRetweet = async () => {
-  const tweetId = selectedTweet?.id;
-  const tweetReply = editedReply;
+    const tweetId = selectedTweet?.id;
+    const tweetReply = editedReply;
 
-  if (!tweetId || !tweetReply) {
-    alert("Tweet or reply is missing");
-    return;
-  }
-
-  const access_token = localStorage.getItem("twitter_access_token");
-
-  if (!access_token) {
-    alert("Access token not found. Please login with Twitter.");
-    return;
-  }
-
-  try {
-    const response = await fetch("http://localhost:5000/api/postReply", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${access_token}`,
-      },
-      body: JSON.stringify({
-        tweetId,
-        reply: tweetReply,
-      }),
-    });
-
-    const data = await response.json();
-
-    if (response.ok) {
-      alert("Reply posted successfully!");
-      setOpen(false); // close modal
-    } else {
-      alert("Error posting reply: " + data.message);
+    if (!tweetId || !tweetReply) {
+      alert("Tweet or reply is missing");
+      return;
     }
-  } catch (error) {
-    console.error("Tweet post error:", error);
-    alert("Failed to post reply.");
-  }
-};
 
-//   const handleRetweet = () => {
-//   const tweetId = selectedTweet?.id;
-//   const tweetReply = editedReply;
+    const access_token = localStorage.getItem("twitter_access_token");
 
-//   if (!tweetId || !tweetReply) {
-//     alert("Tweet or reply is missing");
-//     return;
-//   }
+    if (!access_token) {
+      alert("Access token not found. Please login with Twitter.");
+      return;
+    }
 
-//   const access_token = localStorage.getItem("twitter_access_token");
+    try {
+      const response = await fetch("http://localhost:5000/api/postReply", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${access_token}`,
+        },
+        body: JSON.stringify({
+          tweetId,
+          reply: tweetReply,
+        }),
+      });
 
-//   if (!access_token) {
-//     alert("Access token not found. Please login with Twitter.");
-//     return;
-//   }
+      const data = await response.json();
 
-//   // Pass data via query parameters to backend
-//   const url = `http://localhost:3000?twitterId=${encodeURIComponent(access_token)}&tweetId=${tweetId}&reply=${encodeURIComponent(tweetReply)}`;
+      if (response.ok) {
+        alert("Reply posted successfully!");
+        setOpen(false); // close modal
+      } else {
+        alert("Error posting reply: " + data.message);
+      }
+    } catch (error) {
+      console.error("Tweet post error:", error);
+      alert("Failed to post reply.");
+    }
+  };
 
-//   console.log("Redirecting to:", url);
-//   window.location.href = url;
-// };
+  //   const handleRetweet = () => {
+  //   const tweetId = selectedTweet?.id;
+  //   const tweetReply = editedReply;
+
+  //   if (!tweetId || !tweetReply) {
+  //     alert("Tweet or reply is missing");
+  //     return;
+  //   }
+
+  //   const access_token = localStorage.getItem("twitter_access_token");
+
+  //   if (!access_token) {
+  //     alert("Access token not found. Please login with Twitter.");
+  //     return;
+  //   }
+
+  //   // Pass data via query parameters to backend
+  //   const url = `http://localhost:3000?twitterId=${encodeURIComponent(access_token)}&tweetId=${tweetId}&reply=${encodeURIComponent(tweetReply)}`;
+
+  //   console.log("Redirecting to:", url);
+  //   window.location.href = url;
+  // };
   return (
     <Paper>
       <Grid
@@ -225,7 +225,7 @@ const handlePost11 = async (tweetId, replyText, token) => {
         alignItems="center"
         sx={{ p: 2 }}
       >
-        <Grid sx={{display:"flex",gap:3}}>
+        <Grid sx={{ display: "flex", gap: 3 }}>
           <Typography variant="h6">📜 Search History</Typography>
           <TextField
             size="small"
@@ -266,6 +266,9 @@ const handlePost11 = async (tweetId, replyText, token) => {
                 <b>Tweet</b>
               </TableCell>
               <TableCell>
+                <b>Tweet Link</b>
+              </TableCell>
+              <TableCell>
                 <b>Reply</b>
               </TableCell>
               <TableCell>
@@ -302,6 +305,18 @@ const handlePost11 = async (tweetId, replyText, token) => {
                   </Tooltip>
                 </TableCell>
                 <TableCell>
+                  <Button
+                    variant="contained"
+                    href={tweet.tweet_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ width: "100px", whiteSpace: "nowrap" }}
+                  >
+                    View Post
+                  </Button>
+                </TableCell>
+
+                <TableCell>
                   <Tooltip title={tweet.reply} placement="top" arrow>
                     <span>
                       {tweet.reply?.split(" ").slice(0, 20).join(" ")}
@@ -328,7 +343,7 @@ const handlePost11 = async (tweetId, replyText, token) => {
                     <Button
                       style={{ backgroundColor: "green", color: "white" }}
                       // onClick={() => handlePost(tweet.id, tweet.reply,token)}
-                       onClick={() => handlePost(tweet)}
+                      onClick={() => handlePost(tweet)}
                     >
                       Post
                     </Button>
@@ -339,36 +354,41 @@ const handlePost11 = async (tweetId, replyText, token) => {
           </TableBody>
         </Table>
       </TableContainer>
-            <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="sm">
-              <DialogTitle>Retweet Confirmation</DialogTitle>
-              <DialogContent dividers>
-                <Typography variant="subtitle1" gutterBottom>
-                  <strong>Tweet:</strong>
-                </Typography>
-                <Typography variant="body1" sx={{ mb: 2 }}>
-                  {selectedTweet?.text}
-                </Typography>
-      
-                <Typography variant="subtitle1" gutterBottom>
-                  <strong>Edit Reply:</strong>
-                </Typography>
-                <TextField
-                  fullWidth
-                  multiline
-                  minRows={3}
-                  value={editedReply}
-                  onChange={(e) => setEditedReply(e.target.value)}
-                />
-              </DialogContent>
-              <DialogActions>
-                <Button onClick={() => setOpen(false)} color="secondary">
-                  Cancel
-                </Button>
-                <Button onClick={handleRetweet} variant="contained" color="primary">
-                  Retweet
-                </Button>
-              </DialogActions>
-            </Dialog>
+      <Dialog
+        open={open}
+        onClose={() => setOpen(false)}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle>Retweet Confirmation</DialogTitle>
+        <DialogContent dividers>
+          <Typography variant="subtitle1" gutterBottom>
+            <strong>Tweet:</strong>
+          </Typography>
+          <Typography variant="body1" sx={{ mb: 2 }}>
+            {selectedTweet?.text}
+          </Typography>
+
+          <Typography variant="subtitle1" gutterBottom>
+            <strong>Edit Reply:</strong>
+          </Typography>
+          <TextField
+            fullWidth
+            multiline
+            minRows={3}
+            value={editedReply}
+            onChange={(e) => setEditedReply(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpen(false)} color="secondary">
+            Cancel
+          </Button>
+          <Button onClick={handleRetweet} variant="contained" color="primary">
+            Retweet
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Paper>
   );
 };

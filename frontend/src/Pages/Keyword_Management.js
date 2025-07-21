@@ -19,7 +19,23 @@ const mockTrending = [
   "TechNews",
   "Startup",
   "NASA",
+  // 🔽 Digital Marketing Related Topics
+  "DigitalMarketing",
+  "SEO",
+  "ContentMarketing",
+  "SocialMediaMarketing",
+  "GoogleAds",
+  "FacebookAds",
+  "MarketingTips",
+  "InfluencerMarketing",
+  "EmailMarketing",
+  "GrowthHacking",
+  "PerformanceMarketing",
+  "BrandStrategy",
+  "LinkedInMarketing",
+  "InstagramMarketing",
 ];
+
 
 const Keyword_Management = () => {
   const [keywords, setKeywords] = useState([]);
@@ -67,12 +83,14 @@ const Keyword_Management = () => {
     }
   };
 
-  const clearAllFilters = () => {
-    setKeywords([]); // clear keywords
-    setLikesFilter(0); // reset filters
-    setRetweetsFilter(0);
-    setFollowersFilter(0);
-  };
+ const clearAllFilters = () => {
+  // setKeywords([]); // clear keywords
+  setLikesFilter(0); // reset filters
+  setRetweetsFilter(0);
+  setFollowersFilter(0);
+  setTweets([]); // ❗ Clear tweets result also
+};
+
 
   return (
     <Grid container spacing={2} direction="column" p={3}>
@@ -169,10 +187,13 @@ const Keyword_Management = () => {
       </Grid>
 
       {/* Results */}
+      {tweets.length > 0 && keywords.length > 0 && (
       <Grid item>
+        
         <Typography variant="h6" mt={3}>
           Results ({tweets.length})
         </Typography>
+
         {tweets.map((tweet, idx) => (
           <div
             key={idx}
@@ -192,7 +213,7 @@ const Keyword_Management = () => {
             </Card>
           </div>
         ))}
-      </Grid>
+      </Grid>)}
     </Grid>
   );
 };
