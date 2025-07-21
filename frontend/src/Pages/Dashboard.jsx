@@ -22,6 +22,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import LogoutDialog from "../Components/logoutDialog/LogoutDialog";
 import TweetReplyTable from "../Components/tweet-reply-table/SearchHistory";
+import Keyword_Management from "./Keyword_Management";
 
 const drawerWidth = 200;
 
@@ -34,10 +35,10 @@ const Dashboard = () => {
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) navigate("/login");
-  }, [navigate]);
+  // useEffect(() => {
+  //   const token = localStorage.getItem("token");
+  //   if (!token) navigate("/login");
+  // }, [navigate]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -63,6 +64,17 @@ const Dashboard = () => {
     setKeyword("");
     setTweets([]);
   };
+  // Dashboard.jsx
+  useEffect(() => {
+    const token = new URLSearchParams(window.location.search).get(
+      "accessToken"
+    );
+    console.log("rttt",token)
+    if (token) {
+      localStorage.setItem("twitter_access_token", token);
+      navigate('/dashboard')
+    }
+  }, []);
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -90,14 +102,11 @@ const Dashboard = () => {
             <ListItem button onClick={() => setActive("")}>
               <ListItemText primary="Dashboard" />
             </ListItem>
-            <ListItem button onClick={() => setActive("history")}>
-              <ListItemText primary="History" />
+            <ListItem button onClick={() => setActive("keyword-management")}>
+              <ListItemText primary="Keyword Management" />
             </ListItem>
-            <ListItem button>
-              <ListItemText primary="Export Tools" />
-            </ListItem>
-            <ListItem button onClick={() => setActive("post-manager")}>
-              <ListItemText primary="Post Manager" />
+            <ListItem button onClick={() => setActive("search-history")}>
+              <ListItemText primary="Search History" />
             </ListItem>
           </List>
         </Box>
@@ -131,8 +140,10 @@ const Dashboard = () => {
 
         <Toolbar />
         <Box sx={{ p: 3 }}>
-          {active === "post-manager" || active === "history" ? (
+          {active === "search-history" || active === "history" ? (
             <TweetReplyTable />
+          ) : active === "keyword-management" ? (
+            <Keyword_Management />
           ) : (
             <>
               {/* Search Box */}

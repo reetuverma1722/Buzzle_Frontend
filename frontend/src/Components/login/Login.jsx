@@ -10,12 +10,13 @@ import {
   Box,
   Link,
   Alert,
+  Grid,
 } from "@mui/material";
 import MailOutlineIcon from "@mui/icons-material/MailOutline";
 import { loginUser, registerUser } from "../../services/authService";
 import { useNavigate } from "react-router";
-import { GoogleLogin } from '@react-oauth/google';
-import { jwtDecode } from 'jwt-decode'; 
+import { GoogleLogin } from "@react-oauth/google";
+import { jwtDecode } from "jwt-decode";
 
 const Login = ({ open, onClose }) => {
   const [isRegister, setIsRegister] = useState(false);
@@ -63,64 +64,56 @@ const Login = ({ open, onClose }) => {
   };
 
   const handleGoogleSuccess = async (credentialResponse) => {
-  console.log('✅ Google Login Response:', credentialResponse);
+    console.log("✅ Google Login Response:", credentialResponse);
 
-  if (!credentialResponse.credential) {
-    setError('No credential returned from Google');
-    return;
-  }
-
-  try {
-    const decoded = jwtDecode(credentialResponse.credential);
-    console.log('✅ Decoded Google User:', decoded);
-
-    const { email, name, sub: googleId } = decoded;
-
-    const res = await fetch('http://localhost:5000/api/auth/google-login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, name, googleId }),
-    });
-
-    const data = await res.json();
-
-    if (res.ok) {
-      localStorage.setItem('user', JSON.stringify(data.user));
-      localStorage.setItem('token', data.token);
-      navigate('/dashboard');
-    } else {
-      setError(data.message || 'Login failed');
+    if (!credentialResponse.credential) {
+      setError("No credential returned from Google");
+      return;
     }
-  } catch (err) {
-    console.error('❌ Google Login Error:', err);
-    setError('Google login failed');
-  }
-};
 
-  // const handleGoogleSuccess = async (credentialResponse) => {
-  //   try {
-  //     const decoded = jwtDecode(credentialResponse.credential);
-  //     const { email, name, sub: googleId } = decoded;
+    try {
+      const decoded = jwtDecode(credentialResponse.credential);
+      console.log("✅ Decoded Google User:", decoded);
 
-  //     const res = await fetch('http://localhost:5000/api/auth/google-login', {
-  //       method: 'POST',
-  //       headers: { 'Content-Type': 'application/json' },
-  //       body: JSON.stringify({ email, name, googleId }),
-  //     });
+      const { email, name, sub: googleId } = decoded;
 
-  //     const data = await res.json();
-  //     if (res.ok) {
-  //       localStorage.setItem('user', JSON.stringify(data.user));
-  //       localStorage.setItem('token', data.token);
-  //       navigate('/dashboard');
-  //     } else {
-  //       setError(data.message || 'Login failed');
-  //     }
-  //   } catch (err) {
-  //     console.error(err);
-  //     setError('Google login failed');
-  //   }
-  // };
+      const res = await fetch("http://localhost:5000/api/auth/google-login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, name, googleId }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        localStorage.setItem("user", JSON.stringify(data.user));
+        localStorage.setItem("token", data.token);
+        navigate("/dashboard");
+      } else {
+        setError(data.message || "Login failed");
+      }
+    } catch (err) {
+      console.error("❌ Google Login Error:", err);
+      setError("Google login failed");
+    }
+  };
+
+  const redirectToTwitter = () => {
+    const clientId = "OEkyejYzcXlKVkZmX2RVekFFUFc6MTpjaQ";
+    const redirectUri = encodeURIComponent(
+      "http://localhost:5000/api/auth/twitter/callback"
+    );
+    const scope = encodeURIComponent(
+      "tweet.read tweet.write users.read offline.access"
+    );
+    const state = "state"; // Random string in production for CSRF protection
+    const codeChallenge = "challenge"; // For now, static; later use real PKCE
+
+    const twitterAuthUrl = `https://twitter.com/i/oauth2/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&state=${state}&code_challenge=${codeChallenge}&code_challenge_method=plain`;
+
+    window.location.href = twitterAuthUrl;
+  };
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
       <DialogTitle>
@@ -129,16 +122,25 @@ const Login = ({ open, onClose }) => {
       <DialogContent>
         {!isRegister && (
           <>
-            <GoogleLogin
-             onSuccess={handleGoogleSuccess}
-              onError={() => setError('Google Sign In Failed')}
-              fullWidth
-              variant="contained"
-              startIcon={<MailOutlineIcon />}
-              sx={{ mb: 2, backgroundColor: "#1976d2" }}
-            >
-              Sign in with Google
-            </GoogleLogin>
+            <Grid sx={{display:"flex",gap:3,flexDirection:"column"}}>
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => setError("Google Sign In Failed")}
+                fullWidth
+                variant="contained"
+                startIcon={<MailOutlineIcon />}
+                sx={{ mb: 2, backgroundColor: "#1976d2" }}
+              >
+                Sign in with Google
+              </GoogleLogin>
+              <Button
+                onClick={redirectToTwitter}
+                style={{ padding: 10 }}
+                variant="contained"
+              >
+                Sign In with Twitter
+              </Button>
+            </Grid>
             <Divider sx={{ my: 2 }}>OR CONTINUE WITH</Divider>
           </>
         )}
